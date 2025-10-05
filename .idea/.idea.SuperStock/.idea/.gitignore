@@ -11,5 +11,5 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
-/SuperStock/bin/
-/SuperStock/obj/
+../../SuperStock/bin/
+../../SuperStock/obj/
