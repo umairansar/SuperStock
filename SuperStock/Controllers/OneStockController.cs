@@ -8,22 +8,32 @@ namespace SuperStock.Controllers;
 public class OneStockController(OneStockService oneStockService) : ControllerBase
 {
     [HttpGet("Db/Peek")]
-    public async Task<IActionResult> Peek()
+    public async Task<IActionResult> PeekViaDb()
     {
-        var res = await oneStockService.Peek();
+        var res = await oneStockService.PeekViaDb();
         return Ok(res);
     }
     
     [HttpPost("Db/Buy")]
-    public async Task<IActionResult> ViaDb()
+    public async Task<IActionResult> BuyViaDb()
     {
-        var res = await oneStockService.BuySafe();
+        var traceId= HttpContext.TraceIdentifier;      
+        var res = await oneStockService.BuySafe(traceId); //Something with siege undercounting successful requests, appears underselling
         return Ok($"Remaining stock: {res}");
     }
     
-    [HttpPost("Cache/Buy")]
-    public IActionResult ViaCache()
+    [HttpGet("Cache/Peek")]
+    public async Task<IActionResult> PeekViaCache()
     {
-        return Ok();
+        var res = await oneStockService.PeekViaCache();
+        return Ok(res);
+    }
+    
+    [HttpPost("Cache/Buy")]
+    public async Task<IActionResult> BuyViaCache()
+    {
+        var traceId = HttpContext.TraceIdentifier;
+        var res = await oneStockService.BuyFast(traceId);
+        return Ok($"Remaining stock: {res}");
     }
 }
