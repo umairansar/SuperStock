@@ -12,7 +12,7 @@ public class Database
     {
         var mongoClient = new MongoClient(
             databaseSettings.Value.ConnectionString);
-
+        
         var mongoDatabase = mongoClient.GetDatabase(
             databaseSettings.Value.DatabaseName);
 
@@ -26,7 +26,7 @@ public class Database
 
         await TicketCollection.UpdateOneAsync(
             filter: Builders<Ticket>.Filter.Eq(x => x.Id, id),
-            update: Builders<Ticket>.Update.Set(x => x.Stock, 3000),
+            update: Builders<Ticket>.Update.Set(x => x.Stock, 5000),
             options: new UpdateOptions { IsUpsert = true });
     }
 }
