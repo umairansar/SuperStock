@@ -3,20 +3,40 @@ using SuperStock.Repository;
 
 namespace SuperStock.Services;
 
-public class OneStockService(Database database)
+public interface IOneStockService
 {
-    private static int s_InMemoryStock = 5000;
-    private static int s_FastSold = 0;
+    Task<Ticket> PeekSafe();
+    Task<bool> BuySafe(string traceId);
+    Ticket PeekFastAtomic();
+    Task<bool> BuyFastAtomic(string traceId);
+    Ticket PeekFastSignal();
+    bool BuyFastSignal(string traceId);
+    Ticket PeekFastLocking();
+    bool BuyFastLocking(string traceId);
+}
+
+public class OneStockService(Database database) : IOneStockService
+{
+    private static int s_InMemoryAtomicStock = 15000;
+    private static int s_InMemorySignalStock = 15000;
+    private static int s_InMemoryLockingStock = 15000;
+    private static int s_FastAtomicSold = 0;
+    private static int s_FastSignalSold = 0;
+    private static int s_FastLockingSold = 0;
     private static int s_SafeSold = 0;
     
-    public async Task<List<Ticket>> PeekViaDb()
+    private static AutoResetEvent _resetEvent = new (true);
+    private static readonly object _locker = new();
+    
+    public async Task<Ticket> PeekSafe()
     {
-        return await database.TicketCollection.Find(_ => true).ToListAsync();
+        return await database.TicketCollection.Find(_ => true).FirstOrDefaultAsync();
     }
 
     //https://www.mongodb.com/docs/manual/tutorial/model-data-for-atomic-operations/?utm_source=chatgpt.com#pattern
-    public async Task<int> BuySafe(string traceId)
+    public async Task<bool> BuySafe(string traceId)
     {
+        var bought = false;
         var filter = Builders<Ticket>.Filter.And(
             Builders<Ticket>.Filter.Eq(t => t.Id, "dcbc9f373e7c96cae045a587"),
             Builders<Ticket>.Filter.Gte(t => t.Stock, 1)
@@ -32,39 +52,103 @@ public class OneStockService(Database database)
         }
         else
         {
+            bought = true;
             Interlocked.Increment(ref s_SafeSold);
         }
-        
-        return res?.Stock ?? 0;
+
+        return bought;
     }
     
     
-    public async Task<List<Ticket>> PeekViaCache()
+    public Ticket PeekFastAtomic()
     {
-        return [new Ticket { Id = "", Stock = s_InMemoryStock }];
+        return new Ticket { Id = "", Stock = s_InMemoryAtomicStock };
     }
 
     //Modified Source: https://stackoverflow.com/a/13056904/30097388
-    public async Task<int> BuyFast(string traceId)
+    public async Task<bool> BuyFastAtomic(string traceId)
     {
+        var bought = false;
         int originalValue = 0, newValue = 0;
         do
         {
-            originalValue = s_InMemoryStock;
+            originalValue = s_InMemoryAtomicStock;
             if (originalValue <= 0) break;
             newValue = originalValue - 1;
-        } while (Interlocked.CompareExchange(ref s_InMemoryStock, newValue, originalValue)  != originalValue);
+        } while (Interlocked.CompareExchange(ref s_InMemoryAtomicStock, newValue, originalValue)  != originalValue);
         
         Console.WriteLine("{0} > Remaining fast stock: {1}", traceId, newValue);
         if (newValue == 0 && originalValue != 1)
         {
-            Console.WriteLine("{0} > Fast Tickets Sold: {1}", traceId, s_FastSold);
+            Console.WriteLine("{0} > Fast Tickets Sold: {1}", traceId, s_FastAtomicSold);
         }
         else
         {
-            Interlocked.Increment(ref s_FastSold);
+            bought = true;
+            Interlocked.Increment(ref s_FastAtomicSold);
         }
         
-        return newValue;
+        return bought;
+    }
+    
+    public Ticket PeekFastSignal()
+    {
+        return new Ticket { Id = "", Stock = s_InMemorySignalStock };
+    }
+
+    public bool BuyFastSignal(string traceId)
+    {
+        _resetEvent.WaitOne();
+        if (s_InMemorySignalStock == 0)
+        {
+            _resetEvent.Set();
+            return false;
+        }
+        
+        s_InMemorySignalStock -= 1;
+        s_FastSignalSold += 1;
+        
+        var capturedInMemorySignalStock = s_InMemorySignalStock;
+        var capturedFastSignalSold =  s_FastSignalSold;
+        _resetEvent.Set();
+        
+        Console.WriteLine("{0} > Remaining fast stock: {1}", traceId, capturedInMemorySignalStock);
+        if (capturedInMemorySignalStock == 0)
+        {
+            Console.WriteLine("{0} > Fast Tickets Sold: {1}", traceId, capturedFastSignalSold);
+        }
+
+        return true;
+    }
+
+    public Ticket PeekFastLocking()
+    {
+        return new Ticket { Id = "", Stock = s_InMemoryLockingStock };
+    }
+
+    public bool BuyFastLocking(string traceId)
+    {
+        int capturedInMemoryLockingStock, capturedFastLockingSold;
+        lock (_locker)
+        {
+            if (s_InMemoryLockingStock == 0)
+            {
+                return false;
+            }
+        
+            s_InMemoryLockingStock -= 1;
+            s_FastLockingSold += 1;
+        
+            capturedInMemoryLockingStock = s_InMemoryLockingStock;
+            capturedFastLockingSold =  s_FastLockingSold;
+        }
+        
+        Console.WriteLine("{0} > Remaining fast stock: {1}", traceId, capturedInMemoryLockingStock);
+        if (capturedInMemoryLockingStock == 0)
+        {
+            Console.WriteLine("{0} > Fast Tickets Sold: {1}", traceId, capturedFastLockingSold);
+        }
+
+        return true;
     }
 }

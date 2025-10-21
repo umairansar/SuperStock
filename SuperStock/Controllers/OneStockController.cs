@@ -5,35 +5,77 @@ namespace SuperStock.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class OneStockController(OneStockService oneStockService) : ControllerBase
+public class OneStockController(IOneStockService oneStockService) : ControllerBase
 {
     [HttpGet("Db/Peek")]
-    public async Task<IActionResult> PeekViaDb()
+    public async Task<IActionResult> PeekSafe()
     {
-        var res = await oneStockService.PeekViaDb();
+        var res = await oneStockService.PeekSafe();
         return Ok(res);
     }
     
     [HttpPost("Db/Buy")]
-    public async Task<IActionResult> BuyViaDb()
+    public async Task<IActionResult> BuySafe()
     {
         var traceId= HttpContext.TraceIdentifier;      
         var res = await oneStockService.BuySafe(traceId); //Something with siege undercounting successful requests, appears underselling
-        return Ok($"Remaining stock: {res}");
+        var remaining = await oneStockService.PeekSafe();
+        return res ? 
+            Ok($"Bought successfully. Remaining stock: {remaining}") :
+            BadRequest($"Already sold out. Stock: {remaining}");
     }
     
-    [HttpGet("Cache/Peek")]
-    public async Task<IActionResult> PeekViaCache()
+    [HttpGet("Cache/Atomic/Peek")]
+    public IActionResult PeekFastAtomic()
     {
-        var res = await oneStockService.PeekViaCache();
+        var res = oneStockService.PeekFastAtomic();
         return Ok(res);
     }
     
-    [HttpPost("Cache/Buy")]
-    public async Task<IActionResult> BuyViaCache()
+    [HttpPost("Cache/Atomic/Buy")]
+    public async Task<IActionResult> BuyFastAtomic()
     {
         var traceId = HttpContext.TraceIdentifier;
-        var res = await oneStockService.BuyFast(traceId);
-        return Ok($"Remaining stock: {res}");
+        var res = await oneStockService.BuyFastAtomic(traceId);
+        var remaining = oneStockService.PeekFastAtomic();
+        return res ? 
+            Ok($"Bought successfully. Remaining stock: {remaining}") :
+            BadRequest($"Already sold out. Stock: {remaining}");
+    }
+    
+    [HttpGet("Cache/Signal/Peek")]
+    public IActionResult PeekFastSignal()
+    {
+        var res = oneStockService.PeekFastSignal();
+        return Ok(res);
+    }
+    
+    [HttpPost("Cache/Signal/Buy")]
+    public IActionResult BuyFastSignal()
+    {
+        var traceId = HttpContext.TraceIdentifier;
+        var res = oneStockService.BuyFastSignal(traceId);
+        var remaining = oneStockService.PeekFastSignal();
+        return res ? 
+            Ok($"Bought successfully. Remaining stock: {remaining}") :
+            BadRequest($"Already sold out. Stock: {remaining}");
+    }
+    
+    [HttpGet("Cache/Lock/Peek")]
+    public IActionResult PeekFastLocking()
+    {
+        var res =  oneStockService.PeekFastLocking();
+        return Ok(res);
+    }
+    
+    [HttpPost("Cache/Lock/Buy")]
+    public IActionResult BuyFastLocking()
+    {
+        var traceId = HttpContext.TraceIdentifier;
+        var res = oneStockService.BuyFastLocking(traceId);
+        var remaining = oneStockService.PeekFastLocking();
+        return res ? 
+            Ok($"Bought successfully. Remaining stock: {remaining}") :
+            BadRequest($"Already sold out. Stock: {remaining}");
     }
 }

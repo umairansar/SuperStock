@@ -14,7 +14,7 @@ builder.Services.Configure<DatabaseSettings>(
 
 builder.Services.AddSingleton<Database>();
 builder.Services.AddHostedService<DatabaseInitializer>();
-builder.Services.AddScoped<OneStockService>();
+builder.Services.AddScoped<IOneStockService, OneStockService>();
 
 var app = builder.Build();
 
@@ -24,7 +24,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseRequestTimeouts();           
 app.MapControllers();
 
