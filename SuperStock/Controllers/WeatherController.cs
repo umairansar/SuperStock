@@ -9,12 +9,23 @@ namespace SuperStock.Controllers;
 public class WeatherController : ControllerBase
 {
     [HttpGet("Throttle")]
-    [RequestTimeout("ThrottlePolicy")]
-    public async Task<IActionResult> ThrottledWeather()
+    [RequestTimeout("ThrottledPolicy")]
+    public async Task<IActionResult> ThrottledWeather(CancellationToken ct)
     {
-        var result = await Throttler.Run(GetWeather);
+        var result = await Throttler.Run(GetWeather, ct);
         
         return Ok(result);
+    }
+    
+    [HttpGet("Throttle/Try")]
+    [RequestTimeout("ThrottledPolicy")]
+    public async Task<IActionResult> TryThrottledWeather(CancellationToken ct)
+    {
+        var (isSuccess, result) = await Throttler.TryRun(GetWeather, ct);
+        
+        return !isSuccess ? 
+            StatusCode(503, "Throttle Capacity Reached!") : 
+            Ok(result);
     }
     
     [HttpGet("Gatekeep")]
@@ -23,7 +34,7 @@ public class WeatherController : ControllerBase
     {
         Gatekeeper.Reset.Wait(ct);
         
-        var result = await GetWeather();
+        var result = await GetWeather(ct);
         
         return Ok(result);
     }
@@ -34,19 +45,19 @@ public class WeatherController : ControllerBase
     {
         await Gatekeeper.Reset.WaitAsync(ct);
         
-        var result = await GetWeather();
+        var result = await GetWeather(ct);
         
         return Ok(result);
     }
 
-    private async Task<WeatherForecast[]> GetWeather()
+    private async Task<WeatherForecast[]> GetWeather(CancellationToken ct)
     {
         var summaries = new[] { "Freezing", "Chilly", "Cool", "Mild", "Warm", "Hot", "Hell" };
         
         var forecast = Enumerable.Range(1, 5).Select(index =>
             new WeatherForecast(summaries[Random.Shared.Next(summaries.Length)])).ToArray();
 
-        await Task.Delay(1000);
+        await Task.Delay(1000, ct);
 
         return forecast;
     }

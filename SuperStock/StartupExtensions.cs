@@ -9,18 +9,20 @@ public static class StartupExtensions
     {
         services.AddRequestTimeouts(options =>
         {
-            options.AddPolicy("ThrottlePolicy", new RequestTimeoutPolicy()
+            options.AddPolicy("ThrottledPolicy", new RequestTimeoutPolicy()
             {
-                Timeout = TimeSpan.FromSeconds(10),
+                Timeout = TimeSpan.FromSeconds(5),
+                TimeoutStatusCode = 503,
                 WriteTimeoutResponse = async context =>
                 {
                     context.Response.ContentType = "text/plain";
-                    await context.Response.WriteAsync("Timeout: throttle capacity reached.");
+                    await context.Response.WriteAsync("Timeout: throttled task timed out.");
                 }
             });
             options.AddPolicy("GatedPolicy", new RequestTimeoutPolicy
             {
-                Timeout = TimeSpan.FromSeconds(10),
+                Timeout = TimeSpan.FromSeconds(5),
+                TimeoutStatusCode = 503,
                 WriteTimeoutResponse = async context =>
                 {
                     context.Response.ContentType = "text/plain";
