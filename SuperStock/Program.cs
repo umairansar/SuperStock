@@ -15,6 +15,7 @@ builder.Services.Configure<DatabaseSettings>(
 builder.Services.AddSingleton<Database>();
 builder.Services.AddHostedService<DatabaseInitializer>();
 builder.Services.AddScoped<IOneStockService, OneStockService>();
+builder.Services.AddScoped<IManyStockService, ManyStockService>();
 
 var app = builder.Build();
 

@@ -6,6 +6,7 @@ namespace SuperStock.Repository;
 public class Database
 {
     public readonly IMongoCollection<Ticket> TicketCollection;
+    public readonly IMongoCollection<Product> ProductCollection;
 
     public Database(
         IOptions<DatabaseSettings> databaseSettings)
@@ -18,15 +19,35 @@ public class Database
 
         TicketCollection = mongoDatabase.GetCollection<Ticket>(
             databaseSettings.Value.TicketCollectionName);
+
+        ProductCollection = mongoDatabase.GetCollection<Product>(
+            databaseSettings.Value.ProductCollectionName);
     }
 
     public async Task Init()
     {
-        const string id = "dcbc9f373e7c96cae045a587";
+        const string ticketId = "dcbc9f373e7c96cae045a587";
 
         await TicketCollection.UpdateOneAsync(
-            filter: Builders<Ticket>.Filter.Eq(x => x.Id, id),
+            filter: Builders<Ticket>.Filter.Eq(x => x.Id, ticketId),
             update: Builders<Ticket>.Update.Set(x => x.Stock, 5000),
+            options: new UpdateOptions { IsUpsert = true });
+        
+        string[] productIds = ["dcbc9f373e7c96cae045a589", "dcbc9f373e7c96cae045a590", "dcbc9f373e7c96cae045a591"];
+
+        await ProductCollection.UpdateOneAsync(
+            filter: Builders<Product>.Filter.Eq(x => x.Id, productIds[0]),
+            update: Builders<Product>.Update.Set(x => x.Stock, 5000),
+            options: new UpdateOptions { IsUpsert = true });
+        
+        await ProductCollection.UpdateOneAsync(
+            filter: Builders<Product>.Filter.Eq(x => x.Id, productIds[1]),
+            update: Builders<Product>.Update.Set(x => x.Stock, 5000),
+            options: new UpdateOptions { IsUpsert = true });
+        
+        await ProductCollection.UpdateOneAsync(
+            filter: Builders<Product>.Filter.Eq(x => x.Id, productIds[2]),
+            update: Builders<Product>.Update.Set(x => x.Stock, 5000),
             options: new UpdateOptions { IsUpsert = true });
     }
 }
