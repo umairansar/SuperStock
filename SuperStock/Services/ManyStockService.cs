@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using SuperStock.Repository;
+using SuperStock.Utils;
 
 namespace SuperStock.Services;
 
@@ -11,12 +12,12 @@ public interface IManyStockService
 
 public class ManyStockService : IManyStockService
 {
-    private static readonly string[] s_productIds = ["dcbc9f373e7c96cae045a589", "dcbc9f373e7c96cae045a590", "dcbc9f373e7c96cae045a591"];
-    private static ConcurrentDictionary<string, Product> s_manyStockService = new () //https://learn.microsoft.com/en-us/dotnet/api/system.collections.concurrent.concurrentdictionary-2.getoradd?view=net-9.0#system-collections-concurrent-concurrentdictionary-2-getoradd(-0-system-func((-0-1)))
+    private static readonly string[] products = ["NVDA", "TSLA", "AMD"];
+    private static ConcurrentDictionary<string, Product> s_manyStockService = new ()
     {
-        [s_productIds[0]] = new Product{Id = s_productIds[0], Stock = 5000},
-        [s_productIds[1]] = new Product{Id = s_productIds[1], Stock = 5000},
-        [s_productIds[2]] = new Product{Id = s_productIds[2], Stock = 5000}
+        [products[0].ToProductId()] = new Product{Id = products[0].ToProductId(), Stock = 5000},
+        [products[1].ToProductId()] = new Product{Id = products[1].ToProductId(), Stock = 5000},
+        [products[2].ToProductId()] = new Product{Id = products[2].ToProductId(), Stock = 5000}
     };
     
     public Product PeekFastAtomic(string id)
@@ -46,7 +47,7 @@ public class ManyStockService : IManyStockService
                 break;
             }
             
-            newProduct = new Product { Id = existingProduct.Id, Stock = existingProduct.Stock - 1 };;
+            newProduct = new Product { Id = existingProduct.Id, Stock = existingProduct.Stock - 1 };
         } while (!s_manyStockService.TryUpdate(id, newProduct,existingProduct)); // atomic
         
         if (bought)
