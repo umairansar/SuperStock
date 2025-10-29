@@ -24,21 +24,30 @@ public class ManyStockService : IManyStockService
         return s_manyStockService[id];
     }
 
+    // https://source.dot.net/#System.Private.CoreLib/src/libraries/System.Private.CoreLib/src/System/Collections/Concurrent/ConcurrentDictionary.cs
+    // All public and protected members of are thread-safe and may be used concurrently from multiple threads.
     public bool BuyFastAtomic(string id, string traceId)
     {
-        Product existingProduct;
+        Product? existingProduct;
         Product newProduct = null!;
         var bought = true;
         do
         {
-            existingProduct = s_manyStockService[id];
-            if (existingProduct.Stock == 0)
+            var success = s_manyStockService.TryGetValue(id, out existingProduct); //thread safe
+            if (!success)
+            {
+                Console.WriteLine("{0} > Failed > Product id {1} does not exist.", traceId, id);
+                break;
+            }
+            
+            if (existingProduct!.Stock == 0)
             {
                 bought = false; 
                 break;
             }
+            
             newProduct = new Product { Id = existingProduct.Id, Stock = existingProduct.Stock - 1 };;
-        } while (s_manyStockService.TryUpdate(id, newProduct,existingProduct)); // atomic
+        } while (!s_manyStockService.TryUpdate(id, newProduct,existingProduct)); // atomic
         
         if (bought)
         {
