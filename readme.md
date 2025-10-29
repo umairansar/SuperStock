@@ -1,14 +1,18 @@
-### Phase 1
+### Phase 1 ✅
 
-![img.png](img.png)
+<img width="907" height="400" alt="image" src="https://github.com/user-attachments/assets/7a21db70-85e4-414b-9e81-b97a883ecaa7" />
 
-### Phase 2
+### Phase 2 🚸
 
-![img_1.png](img_1.png)
+<img width="950" height="401" alt="image" src="https://github.com/user-attachments/assets/f99bf319-dde6-4611-82b2-f4444f9110e5" />
 
-### Phase 3
+### Phase 3 🚸
 
-![img_2.png](img_2.png)
+<img width="936" height="565" alt="image" src="https://github.com/user-attachments/assets/6ea4bc9d-61f2-4784-8bb0-3368a00ede7f" />
+
+### Phase 4
+
+<img width="951" height="477" alt="image" src="https://github.com/user-attachments/assets/828c8ffc-dce3-4daf-86df-ff3b94f990d3" />
 
 ## Benchmarks 
 ### Phase 1
@@ -17,7 +21,7 @@
 - 9872 `siege -c5 -t2s -b 'http://localhost:5059/api/v1/OneStock/Cache/Signal/Buy POST'`
 - 6496 `siege -c5 -t2s -b 'http://localhost:5059/api/v1/OneStock/Cache/Lock/Buy POST'`
 
-## Docker Setup
+## Docker Setup (Phase 3)
 Build and run mongo db container
 
 ```json
@@ -45,7 +49,7 @@ Stop and remove container
 docker rm -f core-counter
 ```
 
-## Phase ideas
+## Random ideas
 
 Here are “bigger-picture” places you’d reach for Interlocked / Volatile—not just code snippets:
 
