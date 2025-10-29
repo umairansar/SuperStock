@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using SuperStock.Utils;
 
 namespace SuperStock.Repository;
 
@@ -33,20 +34,20 @@ public class Database
             update: Builders<Ticket>.Update.Set(x => x.Stock, 5000),
             options: new UpdateOptions { IsUpsert = true });
         
-        string[] productIds = ["dcbc9f373e7c96cae045a589", "dcbc9f373e7c96cae045a590", "dcbc9f373e7c96cae045a591"];
+        string[] products = ["NVDA", "TSLA", "AMD"];
 
         await ProductCollection.UpdateOneAsync(
-            filter: Builders<Product>.Filter.Eq(x => x.Id, productIds[0]),
+            filter: Builders<Product>.Filter.Eq(x => x.Id, products[0].ToProductId()),
             update: Builders<Product>.Update.Set(x => x.Stock, 5000),
             options: new UpdateOptions { IsUpsert = true });
         
         await ProductCollection.UpdateOneAsync(
-            filter: Builders<Product>.Filter.Eq(x => x.Id, productIds[1]),
+            filter: Builders<Product>.Filter.Eq(x => x.Id, products[1].ToProductId()),
             update: Builders<Product>.Update.Set(x => x.Stock, 5000),
             options: new UpdateOptions { IsUpsert = true });
         
         await ProductCollection.UpdateOneAsync(
-            filter: Builders<Product>.Filter.Eq(x => x.Id, productIds[2]),
+            filter: Builders<Product>.Filter.Eq(x => x.Id, products[2].ToProductId()),
             update: Builders<Product>.Update.Set(x => x.Stock, 5000),
             options: new UpdateOptions { IsUpsert = true });
     }
