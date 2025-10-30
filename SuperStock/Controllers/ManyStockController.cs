@@ -16,7 +16,7 @@ public class ManyStockController(IManyStockService manyStockService) : Controlle
         return Ok(res);
     }
     
-    [HttpPost("Cache/PeekFastAtomic/{product}")]
+    [HttpPost("Cache/BuyFastAtomic/{product}")]
     public IActionResult BuyFastAtomic(string product)
     {
         var productId = product.ToProductId();
