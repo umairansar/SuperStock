@@ -1,4 +1,5 @@
 using SuperStock;
+using SuperStock.Cache;
 using SuperStock.Infrastructure.MessageBus;
 using SuperStock.Infrastructure.Persistence;
 using SuperStock.Services;
@@ -16,6 +17,7 @@ builder.Services.AddHostedService<DatabaseInitializer>();
 
 builder.Services.Configure<MessageBusSettings>(builder.Configuration.GetSection("MessageBus:Redis"));
 builder.Services.AddSingleton<MessageBus>();
+builder.Services.AddHostedService<StockUpdateEventConsumer>();
 
 builder.Services.AddScoped<IOneStockService, OneStockService>();
 builder.Services.AddScoped<IManyStockService, ManyStockService>();
