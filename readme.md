@@ -21,6 +21,9 @@
 - 9872 `siege -c5 -t2s -b 'http://localhost:5059/api/v1/OneStock/Cache/Signal/Buy POST'`
 - 6496 `siege -c5 -t2s -b 'http://localhost:5059/api/v1/OneStock/Cache/Lock/Buy POST'`
 
+### Phase 2
+<img width="987" height="802" alt="image" src="https://github.com/user-attachments/assets/0ae693e6-b3bc-4f2d-ac8c-22086d79bc1e" />
+
 ## Docker Setup (Phase 3)
 Build and run mongo db container
 
