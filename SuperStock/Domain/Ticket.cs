@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace SuperStock.Repository;
+namespace SuperStock.Domain;
 
 public class Ticket
 {

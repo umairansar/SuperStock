@@ -1,8 +1,9 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using SuperStock.Domain;
 using SuperStock.Utils;
 
-namespace SuperStock.Repository;
+namespace SuperStock.Infrastructure.Persistence;
 
 public class Database
 {

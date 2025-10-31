@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using SuperStock.Domain;
 using SuperStock.Models;
-using SuperStock.Repository;
 using SuperStock.Utils;
 
 namespace SuperStock.Services;

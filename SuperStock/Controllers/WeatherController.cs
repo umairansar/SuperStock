@@ -50,12 +50,12 @@ public class WeatherController : ControllerBase
         return Ok(result);
     }
 
-    private async Task<WeatherForecast[]> GetWeather(CancellationToken ct)
+    private async Task<WeatherDto[]> GetWeather(CancellationToken ct)
     {
         var summaries = new[] { "Freezing", "Chilly", "Cool", "Mild", "Warm", "Hot", "Hell" };
         
         var forecast = Enumerable.Range(1, 5).Select(index =>
-            new WeatherForecast(summaries[Random.Shared.Next(summaries.Length)])).ToArray();
+            new WeatherDto(summaries[Random.Shared.Next(summaries.Length)])).ToArray();
 
         await Task.Delay(1000, ct);
 

@@ -1,5 +1,6 @@
 using MongoDB.Driver;
-using SuperStock.Repository;
+using SuperStock.Domain;
+using SuperStock.Infrastructure.Persistence;
 
 namespace SuperStock.Services;
 
