@@ -1,4 +1,5 @@
 using MongoDB.Driver;
+using SuperStock.Cache;
 using SuperStock.Domain;
 using SuperStock.Infrastructure.Persistence;
 
@@ -18,14 +19,6 @@ public interface IOneStockService
 
 public class OneStockService(Database database) : IOneStockService
 {
-    private static int s_InMemoryAtomicStock = 15000;
-    private static int s_InMemorySignalStock = 15000;
-    private static int s_InMemoryLockingStock = 15000;
-    private static int s_FastAtomicSold = 0;
-    private static int s_FastSignalSold = 0;
-    private static int s_FastLockingSold = 0;
-    private static int s_SafeSold = 0;
-    
     private static AutoResetEvent _resetEvent = new (true);
     private static readonly object _locker = new();
     
@@ -49,12 +42,12 @@ public class OneStockService(Database database) : IOneStockService
         Console.WriteLine("{0} > Remaining safe stock: {1}", traceId, res?.Stock ?? 0);
         if (res == null)
         {
-            Console.WriteLine("{0} > Safe Tickets Sold: {1}", traceId, s_SafeSold);
+            Console.WriteLine("{0} > Safe Tickets Sold: {1}", traceId, MemoryCache.SafeSold);
         }
         else
         {
             bought = true;
-            Interlocked.Increment(ref s_SafeSold);
+            Interlocked.Increment(ref MemoryCache.SafeSold);
         }
 
         return bought;
@@ -63,7 +56,7 @@ public class OneStockService(Database database) : IOneStockService
     
     public Ticket PeekFastAtomic()
     {
-        return new Ticket { Id = "", Stock = s_InMemoryAtomicStock };
+        return new Ticket { Id = "", Stock = MemoryCache.InMemoryAtomicStock };
     }
 
     //Modified Source: https://stackoverflow.com/a/13056904/30097388
@@ -73,20 +66,20 @@ public class OneStockService(Database database) : IOneStockService
         int originalValue = 0, newValue = 0;
         do
         {
-            originalValue = s_InMemoryAtomicStock;
+            originalValue = MemoryCache.InMemoryAtomicStock;
             if (originalValue <= 0) break;
             newValue = originalValue - 1;
-        } while (Interlocked.CompareExchange(ref s_InMemoryAtomicStock, newValue, originalValue)  != originalValue);
+        } while (Interlocked.CompareExchange(ref MemoryCache.InMemoryAtomicStock, newValue, originalValue)  != originalValue);
         
         Console.WriteLine("{0} > Remaining fast stock: {1}", traceId, newValue);
         if (newValue == 0 && originalValue != 1)
         {
-            Console.WriteLine("{0} > Fast Tickets Sold: {1}", traceId, s_FastAtomicSold);
+            Console.WriteLine("{0} > Fast Tickets Sold: {1}", traceId, MemoryCache.FastAtomicSold);
         }
         else
         {
             bought = true;
-            Interlocked.Increment(ref s_FastAtomicSold);
+            Interlocked.Increment(ref MemoryCache.FastAtomicSold);
         }
         
         return bought;
@@ -94,23 +87,23 @@ public class OneStockService(Database database) : IOneStockService
     
     public Ticket PeekFastSignal()
     {
-        return new Ticket { Id = "", Stock = s_InMemorySignalStock };
+        return new Ticket { Id = "", Stock = MemoryCache.InMemorySignalStock };
     }
 
     public bool BuyFastSignal(string traceId)
     {
         _resetEvent.WaitOne();
-        if (s_InMemorySignalStock == 0)
+        if (MemoryCache.InMemorySignalStock == 0)
         {
             _resetEvent.Set();
             return false;
         }
         
-        s_InMemorySignalStock -= 1;
-        s_FastSignalSold += 1;
+        MemoryCache.InMemorySignalStock -= 1;
+        MemoryCache.FastSignalSold += 1;
         
-        var capturedInMemorySignalStock = s_InMemorySignalStock;
-        var capturedFastSignalSold =  s_FastSignalSold;
+        var capturedInMemorySignalStock = MemoryCache.InMemorySignalStock;
+        var capturedFastSignalSold = MemoryCache.FastSignalSold;
         _resetEvent.Set();
         
         Console.WriteLine("{0} > Remaining fast stock: {1}", traceId, capturedInMemorySignalStock);
@@ -124,7 +117,7 @@ public class OneStockService(Database database) : IOneStockService
 
     public Ticket PeekFastLocking()
     {
-        return new Ticket { Id = "", Stock = s_InMemoryLockingStock };
+        return new Ticket { Id = "", Stock = MemoryCache.InMemoryLockingStock };
     }
 
     public bool BuyFastLocking(string traceId)
@@ -132,16 +125,16 @@ public class OneStockService(Database database) : IOneStockService
         int capturedInMemoryLockingStock, capturedFastLockingSold;
         lock (_locker)
         {
-            if (s_InMemoryLockingStock == 0)
+            if (MemoryCache.InMemoryLockingStock == 0)
             {
                 return false;
             }
         
-            s_InMemoryLockingStock -= 1;
-            s_FastLockingSold += 1;
+            MemoryCache.InMemoryLockingStock -= 1;
+            MemoryCache.FastLockingSold += 1;
         
-            capturedInMemoryLockingStock = s_InMemoryLockingStock;
-            capturedFastLockingSold =  s_FastLockingSold;
+            capturedInMemoryLockingStock = MemoryCache.InMemoryLockingStock;
+            capturedFastLockingSold = MemoryCache.FastLockingSold;
         }
         
         Console.WriteLine("{0} > Remaining fast stock: {1}", traceId, capturedInMemoryLockingStock);
