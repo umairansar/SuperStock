@@ -25,6 +25,26 @@ Command(s):
 
 <img width="967" height="650" alt="image" src="https://github.com/user-attachments/assets/9c08b549-893e-4188-b388-7d05ce9fa770" /><br />
 
+#### Redis Pub/Sub Notes
+
+Redis Pub/Sub is stateless which means cache update events could be lost if either publisher, consumer, or Redis are down.  
+Writes will still be consistent, as long as Writer node is up and running.  
+Possibility of oversell in this case, since all the state is entirely maintained in memory.
+
+#### Scenario
+
+- Primary sells some tickets i.e. writes  
+- Cache update events fail to be sent by Primary or accepted by Redis or consumer by Secondaries  
+- Primary then goes down  
+- Readers still have old stock counts for ticket in their cache  
+- Last few writes by Primary are forever lost
+
+#### Possible Solutions
+
+- Use Write Ahead Log (WAL). Orchestrator synchronizes them during automatic failover. Perhaps we can access WAL for inaccessible Primary node via docker volumes. But that tighly couples Orchestrator with the SuperStock cluster (all 3 nodes). Orchestrator is still a single point of failure. Need to look into leaderless distributed election.
+
+- Use Quorams. Primary publishes a message and majority nodes reply with success, then Primary commits the transaction i.e. Ticker Sold. But what happens if all replies got Success but Primary went down? Then all the majority nodes would have comitted the sell (I hope...), even though Primary did not commit. In this case, Orchestrator can detect that Primary node died and send TraceId to all Secondary nodes who will revert the stock for the corresponding TraceId. No need to worry about lost updates on Secondary Nodes, since all the subsequent writes after our TraceId are not possible since Primary was already down.
+
 ### Phase 4
 
 <img width="958" height="562" alt="image" src="https://github.com/user-attachments/assets/c40a9ff2-c740-46de-b8cb-2e95af33fda5" /><br />
