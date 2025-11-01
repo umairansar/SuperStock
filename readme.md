@@ -2,7 +2,7 @@
 
 ### Phase 1 ✅
 
-<img width="916" height="401" alt="image" src="https://github.com/user-attachments/assets/02e68477-b6ef-4772-8413-f03f6f6c8d75" /><br />
+<img width="927" height="401" alt="image" src="https://github.com/user-attachments/assets/54645661-6177-4a58-a987-8b344efc3602" /><br />
 
 API(s):
 - **`BuySafe`** Atomically decrements stock in database.
