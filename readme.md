@@ -24,7 +24,8 @@
 ### Phase 2
 <img width="987" height="802" alt="image" src="https://github.com/user-attachments/assets/0ae693e6-b3bc-4f2d-ac8c-22086d79bc1e" />
 
-## Docker Setup (Phase 3)
+## Phase 3
+### Docker Setup
 Build and run mongo db container
 
 ```json
@@ -50,6 +51,20 @@ Stop and remove container
 
 ```json
 docker rm -f core-counter
+```
+
+### Redis Pub/Sub via Docker
+
+- Primary instance publishes cache update events
+- Secondary instances consume the message
+- Primary ignores the consumption of echo message 
+<img width="1429" height="399" alt="Screenshot 2025-11-01 at 3 43 54 AM" src="https://github.com/user-attachments/assets/bc83d89c-ca23-4c5c-88c1-cce174b1b34f" />
+
+### How to start containers with host id passed as environment variable?
+```json
+docker run -it -e STOCK_HOST_ID=SuperPrimary --name core-counter -p 5059:5059 couter-image
+docker run -it -e STOCK_HOST_ID=SuperSecondary --name core-counter-1 -p 5080:5059 couter-image 
+docker run -it -e STOCK_HOST_ID=DuperSeconfary --name core-counter-2 -p 5081:5059 couter-image
 ```
 
 ## Random ideas
