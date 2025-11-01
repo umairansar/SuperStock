@@ -1,4 +1,4 @@
-![superstock_retro_transparent_noborder](https://github.com/user-attachments/assets/9c138add-8ea1-4039-ad7d-408ffe89e65f)![]()
+![superstock_retro_transparent_noborder_tightemojis](https://github.com/user-attachments/assets/97ae4935-e043-42e1-b948-db61b416214e)![]()
 
 ### Phase 1 ✅
 
