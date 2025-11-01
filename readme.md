@@ -1,4 +1,4 @@
-![superstock_retro_transparent_noborder_tightemojis](https://github.com/user-attachments/assets/97ae4935-e043-42e1-b948-db61b416214e)![]()
+![superstock_retro_transparent_noborder_noarrow](https://github.com/user-attachments/assets/7c8bdad4-4fe2-4eee-8155-fb8bd90c1b14)![]()
 
 ### Phase 1 ✅
 
@@ -10,7 +10,7 @@ API(s):
 - **`BuyFastSignal`** Non-locking synchronization context to decrementing stock in in-memory cache. 
 - **`BuyFastLocking`** Exclusive lock while decrementing stock in in-memory cache.
 
-### Phase 2 🚸
+### Phase 2 ✅
 
 <img width="965" height="376" alt="image" src="https://github.com/user-attachments/assets/368b9906-dc05-4a1d-b631-b34a89066775" /><br />
 
