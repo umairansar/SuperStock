@@ -23,7 +23,7 @@ Command(s):
 
 ### Phase 3 🚸
 
-<img width="967" height="650" alt="image" src="https://github.com/user-attachments/assets/9c08b549-893e-4188-b388-7d05ce9fa770" /><br />
+<img width="967" height="625" alt="image" src="https://github.com/user-attachments/assets/8e154de5-5004-4a86-b062-1627763341dc" /><br />
 
 #### Redis Pub/Sub Notes
 
@@ -47,7 +47,7 @@ Possibility of oversell in this case, since all the state is entirely maintained
 
 ### Phase 4
 
-<img width="958" height="562" alt="image" src="https://github.com/user-attachments/assets/c40a9ff2-c740-46de-b8cb-2e95af33fda5" /><br />
+<img width="958" height="587" alt="image" src="https://github.com/user-attachments/assets/12cd93af-7cbb-4bef-bde3-86303ab45acc" /><br />
 
 ### Phase 5
 
