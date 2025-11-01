@@ -5,7 +5,7 @@ using SuperStock.Models;
 
 namespace SuperStock.Cache;
 
-public class StockUpdateEventConsumer(MessageBus messageBus) : BackgroundService
+public class CacheKeyUpdateConsumer(MessageBus messageBus, HostInfo hostInfo) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -13,6 +13,12 @@ public class StockUpdateEventConsumer(MessageBus messageBus) : BackgroundService
         await messageBus.OneStockSubscriber.SubscribeAsync(oneStockChannel, (_, message) =>
         {
             var eventDto = JsonSerializer.Deserialize<StockUpdateEventDto>(message!);
+
+            if (eventDto?.Host == hostInfo.Id)
+            {
+                Console.WriteLine("Ignoring echo message: {0} - {1}", oneStockChannel, JsonSerializer.Serialize(eventDto));
+                return;
+            }
 
             Console.WriteLine("Received message: {0} - {1}", oneStockChannel, JsonSerializer.Serialize(eventDto));
         });

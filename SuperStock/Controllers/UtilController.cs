@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using StackExchange.Redis;
+using SuperStock.Cache;
 using SuperStock.Infrastructure.MessageBus;
 using SuperStock.Models;
 using SuperStock.Utils;
@@ -9,7 +10,7 @@ namespace SuperStock.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class UtilController(MessageBus messageBus) : ControllerBase
+public class UtilController(MessageBus messageBus, HostInfo hostInfo) : ControllerBase
 {
     [HttpPost("Open")]
     public IActionResult Set()
@@ -31,7 +32,7 @@ public class UtilController(MessageBus messageBus) : ControllerBase
         var res = await messageBus.OneStockSubscriber.PublishAsync(
             RedisChannel.Literal(messageBus.OneStockChannel),
             JsonSerializer.Serialize(
-                new StockUpdateEventDto{Key = "dcbc9f373e7c96cae045a587", Value = "4999"}));
+                new StockUpdateEventDto{Host = hostInfo.Id, Key = "dcbc9f373e7c96cae045a587", Value = "4999"}));
         return Ok(res);
     }
 }

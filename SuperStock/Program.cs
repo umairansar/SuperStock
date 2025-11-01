@@ -15,9 +15,12 @@ builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("D
 builder.Services.AddSingleton<Database>();
 builder.Services.AddHostedService<DatabaseInitializer>();
 
+var hostId = Environment.GetEnvironmentVariable("STOCK_HOST_ID") ?? Environment.MachineName;
+builder.Services.AddSingleton(new HostInfo(hostId));
+
 builder.Services.Configure<MessageBusSettings>(builder.Configuration.GetSection("MessageBus:Redis"));
 builder.Services.AddSingleton<MessageBus>();
-builder.Services.AddHostedService<StockUpdateEventConsumer>();
+builder.Services.AddHostedService<CacheKeyUpdateConsumer>();
 
 builder.Services.AddScoped<IOneStockService, OneStockService>();
 builder.Services.AddScoped<IManyStockService, ManyStockService>();
