@@ -27,11 +27,9 @@ Command(s):
 
 #### Redis Pub/Sub Notes
 
-Redis Pub/Sub is stateless which means cache update events could be lost if either publisher, consumer, or Redis are down.  
-Writes will still be consistent, as long as Writer node is up and running.  
-Possibility of oversell in this case, since all the state is entirely maintained in memory.
+Redis Pub/Sub is stateless which means cache update events could be lost if either publisher, consumer, or Redis are down. Writes will still be consistent, as long as Writer node is up and running. Possibility of oversell in this case, since all the state is entirely maintained in memory.
 
-#### Scenario
+#### Oversell Scenario
 
 - Primary sells some tickets i.e. writes  
 - Cache update events fail to be sent by Primary or accepted by Redis or consumer by Secondaries  
