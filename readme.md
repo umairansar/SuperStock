@@ -76,3 +76,6 @@ Build a new immutable config object and Exchange it into place; readers Volatile
 
 In-process leader / ownership
 Competing workers attempt CompareExchange(ref ownerThreadId, myId, 0). The winner becomes the single writer; others act as readers.
+
+Zookeeper? https://zookeeper.apache.org/doc/current/zookeeperOver.html
+MPSC? https://alexsaveau.dev/blog/opinions/performance/lockness/lockless-queues-are-not-queues
